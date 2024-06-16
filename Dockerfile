@@ -1,14 +1,11 @@
-FROM python:3.12.4
+FROM python:3.12.4 as build-stage
 
 WORKDIR /usr/app
 
 COPY . .
 
-EXPOSE 8080
+RUN pip install --upgrade pip && pip install mkdocs && mkdocs build
 
-RUN pip install --upgrade pip
-RUN pip install mkdocs
-RUN mkdocs build
+FROM nginx:1.19-alpine
 
-CMD ["mkdocs", "serve"]
-
+COPY --from=build-stage /usr/app/site/ /usr/share/nginx/html
